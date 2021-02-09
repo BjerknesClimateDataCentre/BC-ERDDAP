@@ -1,0 +1,56 @@
+version: 1
+disable_existing_loggers: False
+
+formatters:
+    standard:
+        style: '{'
+        format: '{asctime} | {levelname:8} | {name} | {message}'
+        # format: "{levelname} <PID {process}:{processName}> {name}.{funcName}(): {message}"
+
+    error:
+        style: '{'
+        # format: "%(levelname)s <PID %(process)d:%(processName)s> %(name)s.%(funcName)s(): %(message)s"
+        # format: "%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s"
+        format: "{asctime} | {levelname:8} | {name}:{funcName}:{lineno} | {message}"
+
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: INFO
+        formatter: standard
+        stream: ext://sys.stdout
+
+    file:
+        class: logging.handlers.TimedRotatingFileHandler
+        level: DEBUG
+        formatter: error
+        utc: True
+        filename: ../log/debug.log
+        interval: 23
+        when: 'h'
+        backupCount: 9
+        encoding: utf8
+
+    mail:
+        class: logging.handlers.SMTPHandler
+        level: ERROR
+        formatter: error
+        # mailhost: 'smtp.skynet.com'
+        mailhost: 'smtp.mail.com'
+        # fromaddr: logging@skynet.com
+        fromaddr: julien.paul@uib.no
+        # toaddrs: [ admin1@skynet.com, admin2@skynet.com ]
+        toaddrs: [julien.paul@uib.no]
+        credentials: (jpa029@uib.no, password)
+        subject: Python Package System Alert
+
+# loggers:
+#     icp2edd:
+#         handlers: [console_handler, file_handler, alert_handler]
+#         level: NOTSET
+#         propagate: no
+
+root:
+    level: NOTSET
+    handlers: [console, file]
+    # handlers: [console, file, mail]

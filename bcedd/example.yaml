@@ -1,0 +1,22 @@
+
+# template:
+#   url: 'https://template'
+#   type: 'table   # ['grid', 'table']
+#   freq: 'weekly' # ['weekly', 'monthly']
+#
+ifremer:
+  url: 'https://www.ifremer.fr/erddap'
+  type: ['grid', 'table']
+  freq: 'weekly'
+socat:
+  url: ['https://ferret.pmel.noaa.gov/socat/erddap']
+  type: ['grid']
+  freq: 'weekly'
+jeodpp:
+  url: 'https://jeodpp.jrc.ec.europa.eu/services/erddap'
+  type: ['grid', 'table']
+  freq: 'monthly'
+emodnet:
+  url: 'https://erddap.emodnet-physics.eu/erddap'
+  type: ['grid', 'table']
+  freq: 'weekly'
