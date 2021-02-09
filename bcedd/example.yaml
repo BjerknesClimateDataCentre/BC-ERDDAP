@@ -7,11 +7,11 @@
 ifremer:
   url: 'https://www.ifremer.fr/erddap'
   type: ['grid', 'table']
-  freq: 'weekly'
+  freq: 'monthly'
 socat:
-  url: ['https://ferret.pmel.noaa.gov/socat/erddap']
+  url: 'https://ferret.pmel.noaa.gov/socat/erddap'
   type: ['grid']
-  freq: 'weekly'
+  freq: 'monthly'
 jeodpp:
   url: 'https://jeodpp.jrc.ec.europa.eu/services/erddap'
   type: ['grid', 'table']
@@ -19,4 +19,4 @@ jeodpp:
 emodnet:
   url: 'https://erddap.emodnet-physics.eu/erddap'
   type: ['grid', 'table']
-  freq: 'weekly'
+  freq: 'monthly'

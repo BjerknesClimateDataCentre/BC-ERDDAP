@@ -19,6 +19,7 @@ from time import strftime, localtime
 import confuse  # Initialize config with your app
 from dateutil.parser import parse
 # import from my project
+import bcedd
 
 # --- module's variable ------------------------
 # public
@@ -47,7 +48,7 @@ def _chk_update_yaml(cfg_):
     global yaml
 
     try:
-        yaml = Path(cfg_['update']['yaml'].as_filename())
+        yaml = cfg_['update']['yaml'].get(str)
     except confuse.exceptions.NotFoundError:
         pass
     except Exception:

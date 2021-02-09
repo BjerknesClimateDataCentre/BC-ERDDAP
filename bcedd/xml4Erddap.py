@@ -23,7 +23,7 @@ import bcedd.setupcfg as setupcfg
 _logger = logging.getLogger(__name__)
 
 
-def _checkTag(self, ds_, tagline_):
+def _checkTag(ds_, tagline_):
     """
     check if both taglines:
         <!-- Begin GenerateDatasetsXml #XXX someDate -->
@@ -58,13 +58,11 @@ def generate(srcname_, url_, type_):
         # directory already exists
         pass
 
-    cmd = [srcname_, url_, type_+'FromErddap', 'true']
+    cmd = [f"EDD{type_.capitalize()}FromErddap", url_, 'true']
 
     # inserts executable
     exe = './GenerateDatasetsXml.sh'
     cmd.insert(0, exe)
-
-    print(f"{cmd}")
 
     exe = Path.joinpath(setupcfg.erddapWebInfDir, exe)
     # Check file exists
@@ -79,7 +77,7 @@ def generate(srcname_, url_, type_):
         # raise PermissionError("")
 
     # creates empty dataset file if need be
-    _ds = f"datasets.{srcname_}.{type_}.xml"
+    _ds = f"dataset.{srcname_}.{type_}.xml"
     ds = Path.joinpath(datasetSubDir, _ds)
     tag = '#' + srcname_ + '_' + type_
     tagline = '<!-- Begin GenerateDatasetsXml ' + tag + ' someDate -->'
@@ -112,14 +110,6 @@ def generate(srcname_, url_, type_):
 
 def concatenate():
     """ concatenate header.xml dataset.XXX.xml footer.xml into local datasets.xml
-
-    >>> xmlout = concatenate()
-    concatenate in .../datasets.xml
-    \t.../header.xml
-    ...
-    \t.../footer.xml
-    >>> xmlout.__str__()
-    '.../datasets.xml'
     """
     dsxmlout = setupcfg.datasetXmlPath / 'datasets.xml'
     _logger.debug(f'concatenate in {dsxmlout}')
@@ -139,20 +129,16 @@ def concatenate():
 
     return dsxmlout
 
-def check_duplicate(ds, gloatt, out=None):
+
+def check_duplicate(ds, out=None):
     """
     :param ds: str
        input filename
-    :param gloatt: dictionary
-       global and variable attribute to be added
     :param out: str
         output filename, optional
     """
     if not isinstance(ds, Path):
         ds = Path(ds)
-
-    if not isinstance(gloatt, dict):
-        raise TypeError(f'Invalid type value, gloatt -{gloatt}- must be dictionary')
 
     if out is not None and not isinstance(out, str):
         raise TypeError(f'Invalid type value, out -{out}- must be string')
@@ -176,13 +162,15 @@ def check_duplicate(ds, gloatt, out=None):
     # Use a `set` to keep track of "visited" elements with good lookup time.
     visited = set()
     # The iter method does a recursive traversal
-    for el in root.iter('dataset'):
+    # for node in root.iter('dataset'):
+    for node in root.findall('dataset'):
+        # print(f'node: tag -{node.tag}- attribute -{node.attrib}-')
         # Since the id is what defines a duplicate for you
-        if 'id' in el.attr:
-            current = el.get('datasetID')
+        if 'datasetID' in node.attrib:
+            current = node.get('datasetID')
             # In visited already means it's a duplicate, remove it
             if current in visited:
-                el.getparent().remove(el)
+                node.getparent().remove(node)
             # Otherwise mark this ID as "visited"
             else:
                 visited.add(current)
@@ -194,7 +182,8 @@ def check_duplicate(ds, gloatt, out=None):
         dsout = ds
 
     tree.write(str(dsout), encoding='ISO-8859-1', xml_declaration=True)
-#
+
+
 def replaceXmlBy(dsxmlout):
     """ overwrite erddap datasets.xml with the new one
     :param dsxmlout:
@@ -204,5 +193,5 @@ def replaceXmlBy(dsxmlout):
     if dsxml.is_file():  # and not dsxml.is_symlink():
         dsxml.unlink()
 
-    _logger.info(f'create hard link to: {dsxmlout}')
+    _logger.info(f'create hard link from {dsxmlout} to {dsxml}')
     dsxmlout.link_to(dsxml)

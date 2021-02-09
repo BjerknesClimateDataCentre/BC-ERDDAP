@@ -1,4 +1,4 @@
-# This is the default config file for icp2edd
+# This is the default config file for bcedd
 
 paths:
     # erddap: path of the main ERDDAP repository [tomcat]
@@ -6,9 +6,9 @@ paths:
     # dataset: path where store file from each dataset
     dataset:
         # path where store xml file from ICOS CP for each dataset
-        xml: '/home/jpa029/Data/ICOS2ERDDAP/dataset'
+        xml: '/home/jpa029/Data/BC-ERDDAP/dataset/xml'
     # log: path where store output log file
-    log: '/home/jpa029/Data/ICOS2ERDDAP/log'
+    log: '/home/jpa029/Data/BC-ERDDAP/log'
 
 update:
     # freq: updating frequency to be applied ['weekly', 'monthly']
