@@ -56,8 +56,8 @@ def main():
     setupcfg.main()
     _logger = logging.getLogger(__name__)
 
-    # 1 read yaml
-    with open(setupcfg.yaml, 'r') as stream:
+    # read yaml
+    with open(setupcfg.eddyaml, 'r') as stream:
         try:
             data_loaded = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
@@ -79,14 +79,14 @@ def main():
                 bindings += [(k,v['url'],tt)]
 
     for b in bindings:
-        # 2 run Generate
+        # run Generate
         x4edd.generate(*b)
 
-    # 3 aggregate
+    # aggregate
     dsxmlout = x4edd.concatenate()
-    # 4 check duplicate
+    # check duplicate
     x4edd.check_duplicate(dsxmlout)
-    # 5 create hard link
+    # create hard link
     x4edd.replaceXmlBy(dsxmlout)
 
 

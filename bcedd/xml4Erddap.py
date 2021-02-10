@@ -10,10 +10,7 @@ import os
 import subprocess
 import logging
 import warnings
-from pprint import pformat
-# from importlib import resources
 # import from other lib
-# > conda forge
 import lxml.etree as etree
 # import from my project
 import bcedd.setupcfg as setupcfg
@@ -31,6 +28,9 @@ def _checkTag(ds_, tagline_):
     are presented in ds file.
 
     XXX is the name of the dataset (without suffix)
+
+    :param ds_:
+    :param tagline_:
     """
     if not isinstance(ds_, Path):
         raise TypeError(f'Invalid type value, ds_ -{ds_}- must be Pathlib object')
@@ -49,7 +49,12 @@ def _checkTag(ds_, tagline_):
 
 
 def generate(srcname_, url_, type_):
-    """ """
+    """
+
+    :param srcname_: ERDDAP's name
+    :param url_: ERDDAP's url
+    :param type_: kind of dataset
+    """
     # creates output sub directory
     datasetSubDir = setupcfg.datasetXmlPath
     try:
@@ -186,6 +191,7 @@ def check_duplicate(ds, out=None):
 
 def replaceXmlBy(dsxmlout):
     """ overwrite erddap datasets.xml with the new one
+
     :param dsxmlout:
     """
     # remove erddap datasets.xml and create hard link to the new one

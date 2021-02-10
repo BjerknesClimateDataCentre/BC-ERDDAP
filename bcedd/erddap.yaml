@@ -1,16 +1,21 @@
+# list of ERDDAP server to be check
 
 # template:
 #   url: 'https://template'
 #   type: 'table   # ['grid', 'table']
 #   freq: 'weekly' # ['weekly', 'monthly']
 #
+icoscp:
+  url: 'https://bluecloud.icos-cp.eu/erddap'
+  type: ['grid', 'table']
+  freq: 'weekly'
 ifremer:
   url: 'https://www.ifremer.fr/erddap'
   type: ['grid', 'table']
   freq: 'monthly'
 socat:
   url: 'https://ferret.pmel.noaa.gov/socat/erddap'
-  type: ['grid']
+  type: ['grid', 'table']
   freq: 'monthly'
 jeodpp:
   url: 'https://jeodpp.jrc.ec.europa.eu/services/erddap'

@@ -13,8 +13,8 @@ paths:
 update:
     # freq: updating frequency to be applied ['weekly', 'monthly']
     freq: 'monthly'
-    # yaml: filename with datasets to work with
-    yaml: 'example.yaml'
+    # yaml: filename with ERDDAP server to work with
+    yaml: 'erddap.yaml'
 
 log:
     # filename: logger filename

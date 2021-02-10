@@ -13,18 +13,16 @@ import sys
 import os
 import warnings
 import argparse
-import datetime as dt
 from time import strftime, localtime
 # import from other lib
 import confuse  # Initialize config with your app
-from dateutil.parser import parse
 # import from my project
 import bcedd
 
 # --- module's variable ------------------------
 # public
 global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, logPath, bceddPath, \
-    log_filename, yaml, freq
+    log_filename, eddyaml, freq
 # private
 global _update_log
 
@@ -38,21 +36,21 @@ def _chk_update_freq(cfg_):
     except confuse.exceptions.NotFoundError:
         pass
     except Exception:
-        logging.exception(f'Invalid yaml filename; '
+        logging.exception(f'Invalid frequency; '
                           f'Check arguments/configuration file(s)')
         raise  # Throw exception again so calling code knows it happened
 
 
 def _chk_update_yaml(cfg_):
     """ """
-    global yaml
+    global eddyaml
 
     try:
-        yaml = cfg_['update']['yaml'].get(str)
+        eddyaml = bceddPath / cfg_['update']['yaml'].get(str)
     except confuse.exceptions.NotFoundError:
         pass
     except Exception:
-        logging.exception(f'Invalid yaml filename; '
+        logging.exception(f'Invalid yaml filename of ERDDAP list; '
                           f'Check arguments/configuration file(s)')
         raise  # Throw exception again so calling code knows it happened
 
@@ -284,10 +282,8 @@ def _setup_logger(config_):
     logging.info(f'-------------------')
 
 
-def _parse(logfile_):
+def _parse():
     """set up parameter from command line arguments
-
-    :param logfile_: log filename, useless except to change the default log filename when using checkOntology
     """
     # define parser
     parser = argparse.ArgumentParser(
@@ -328,15 +324,12 @@ def _parse(logfile_):
                         )
     parser.add_argument("-y", "--yaml",
                         type=str,
-                        help="yaml file with datasets to work with",
+                        help="yaml file with ERDDAP server to work with",
                         dest='update.yaml'
                         )
 
     # parse arguments
     args = parser.parse_args()
-
-    if vars(args)['log.filename'] is None:
-        vars(args)['log.filename'] = logfile_
 
     # TODO check and reformat args
     return args
@@ -401,13 +394,11 @@ def _default_logger():
     logging.captureWarnings(True)
 
 
-def main(logfile_=None):
+def main():
     """set up bcedd
 
     set up config file(s)
     set up logger
-
-    :param logfile_: log filename, useless except to change the default log filename when using checkOntology
     """
 
     # init default
@@ -420,7 +411,7 @@ def main(logfile_=None):
     config = _setup_cfg()
 
     # read command line arguments
-    args = _parse(logfile_)
+    args = _parse()
 
     # overwrite configuration file parameter with parser arguments
     config.set_args(args, dots=True)
