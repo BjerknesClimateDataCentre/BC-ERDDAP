@@ -1,11 +1,13 @@
-# list of datasetID to be used, whatever the remote ERDDAP server
-
-# template:
+#
+# list of datasetID to keep, whatever the remote ERDDAP server
+#
+# keep:
 #  - datasetid1
 #  - datasetid2
-- ArgoFloats
-- ArgoFloats-synthetic-BGC
-- EP_ERD_INT_PHPH_AL_PR_NRT
-- EP_ERD_INT_PHPH_AL_TS_NRT
-- GLODAPv2_2016b_CMEMS
-- SOCATv2020_tracks_gridded_yearly
+keep:
+  - ArgoFloats
+  - ArgoFloats-synthetic-BGC
+  - EP_ERD_INT_PHPH_AL_PR_NRT
+  - EP_ERD_INT_PHPH_AL_TS_NRT
+  - GLODAPv2_2016b_CMEMS
+  - SOCATv2020_tracks_gridded_yearly

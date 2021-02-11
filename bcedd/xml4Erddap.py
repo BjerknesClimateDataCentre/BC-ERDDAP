@@ -172,7 +172,7 @@ def check_datasetid(ds, out=None):
             print(exc)
 
     # Use a `set` to keep track of "selected" elements with good lookup time.
-    keep = set(data_loaded)
+    keep = set(data_loaded['keep'])
 
     # The iter method does a recursive traversal
     # for node in root.iter('dataset'):

@@ -27,6 +27,34 @@ global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsv
 # global _update_log
 
 
+def _chk_cfg_file(cfg_, filename_):
+    """ """
+    cfg_path = Path(_find_package_path(bcedd.__pkg_cfg__))
+    if not cfg_path.is_dir():
+        logging.exception('Can not find configuration path')
+        raise FileNotFoundError
+
+    # check file exist
+    if Path(filename_).is_file():
+        # local directory
+        return Path(filename_).absolute()
+    elif Path(bceddPath / filename_).is_file():
+        # ~/path/to/package/ directory
+        return Path(bceddPath / filename_)
+    elif Path(cfg_path / filename_).is_file():
+        # package config directory
+        # ~/path/to/package/cfg directory
+        return Path(cfg_path / filename_)
+    elif Path(Path(cfg_.config_dir()) / filename_).is_file():
+        # user config directory
+        # ~/.config/<package> directory
+        return Path(Path(cfg_.config_dir()) / filename_)
+    else:
+        logging.exception(f"can not find file -{filename_}-; "
+                                f'Check arguments/configuration file(s)')
+        raise FileNotFoundError
+
+
 def _chk_update_freq(cfg_):
     """ """
     global freq
@@ -46,13 +74,16 @@ def _chk_update_dsyaml(cfg_):
     global dsyaml
 
     try:
-        dsyaml = bceddPath / cfg_['update']['datasetid'].get(str)
+        dsyaml = cfg_['update']['datasetid'].get(str)
     except confuse.exceptions.NotFoundError:
         pass
     except Exception:
-        logging.exception(f'Invalid yaml filename of datasetID list to be used; '
+        logging.exception(f'Invalid yaml filename of datasetID to keep; '
                           f'Check arguments/configuration file(s)')
         raise  # Throw exception again so calling code knows it happened
+
+    # check config file exist
+    dsyaml = _chk_cfg_file(cfg_, dsyaml)
 
 
 def _chk_update_eddyaml(cfg_):
@@ -74,13 +105,16 @@ def _chk_update_eddyaml(cfg_):
         # do not raise other exception as it will be by calling function
 
     try:
-        eddyaml = bceddPath / cfg_['update']['erddap'].get(str)
+        eddyaml = cfg_['update']['erddap'].get(str)
     except confuse.exceptions.NotFoundError:
         pass
     except Exception:
         logging.exception(f'Invalid yaml filename of ERDDAP servers list; '
                           f'Check arguments/configuration file(s)')
         raise  # Throw exception again so calling code knows it happened
+
+    # check config file exist
+    eddyaml = _chk_cfg_file(cfg_, eddyaml)
 
 
 def _chk_update(cfg_=None):

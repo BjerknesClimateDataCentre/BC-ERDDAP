@@ -1,6 +1,7 @@
+#
 # list of ERDDAP server to be check
-
-# template:
+#
+# erddap server's name:
 #   url: 'https://template'
 #   type: 'table   # ['grid', 'table']
 #   freq: 'weekly' # ['weekly', 'monthly']
