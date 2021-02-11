@@ -100,7 +100,6 @@ def generate(srcname_, url_, type_):
     # add tag to dataset name
     dstag = Path.joinpath(datasetSubDir, _ds + tag)
     cmd.append('-i' + str(dstag))
-    #
 
     # run process 'GenerateDatasetsXml.sh' from directory 'erddapWebInfDir' with arguments 'cmd'
     # => creates file: ds

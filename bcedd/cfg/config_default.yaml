@@ -17,6 +17,10 @@ update:
     erddap: 'erddap.yaml'
     # datasetid: yaml filename of datasetIDs to keep
     datasetid: 'datasetid.yaml'
+    # list of authorised eddtype
+    authorised_eddtype: ['table', 'grid']
+    # list of authorised frequency
+    authorised_frequency: ['weekly', 'monthly']
 
 log:
     # filename: logger filename

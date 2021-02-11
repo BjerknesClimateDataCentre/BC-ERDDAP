@@ -22,9 +22,9 @@ import bcedd
 # --- module's variable ------------------------
 # public
 global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, logPath, bceddPath, \
-    log_filename, eddyaml, dsyaml, freq
+    log_filename, eddyaml, dsyaml, freq, authorised_frequency, authorised_eddtype
 # private
-global _update_log
+# global _update_log
 
 
 def _chk_update_freq(cfg_):
@@ -57,7 +57,21 @@ def _chk_update_dsyaml(cfg_):
 
 def _chk_update_eddyaml(cfg_):
     """ """
-    global eddyaml
+    global authorised_frequency, authorised_eddtype, eddyaml
+
+    # Authorised eddtype
+    try:
+        authorised_eddtype = cfg_['update']['authorised_eddtype'].get(list)
+    except confuse.exceptions.NotFoundError:
+        authorised_eddtype = None
+        # do not raise other exception as it will be by calling function
+
+    # Authorised frequency
+    try:
+        authorised_frequency = cfg_['update']['authorised_frequency'].get(list)
+    except confuse.exceptions.NotFoundError:
+        authorised_frequency = None
+        # do not raise other exception as it will be by calling function
 
     try:
         eddyaml = bceddPath / cfg_['update']['erddap'].get(str)
@@ -70,10 +84,7 @@ def _chk_update_eddyaml(cfg_):
 
 
 def _chk_update(cfg_=None):
-    """
-
-    """
-
+    """ """
     if cfg_ is None:
         cfg_ = confuse.Configuration('bcedd', modname=bcedd.__pkg_cfg__)  # Get a value from your YAML file
         _ = Path(cfg_._package_path)
@@ -385,19 +396,19 @@ def _setup_cfg():
 def _setup_path():
     """ set up some useful path
     """
-    global bceddPath, _update_log
+    global bceddPath  # _update_log
 
     bceddPath = Path(_find_package_path(__package__))
     if not bceddPath.is_dir():
         logging.exception('Can not find package path')
         raise FileNotFoundError
 
-    update_log_path = bceddPath / '.log'
-    if not update_log_path.is_dir():
-        update_log_path.mkdir(parents=True, exist_ok=True)
-        logging.warning(f'update log path -{update_log_path}- did not exist before.')
+    # update_log_path = bceddPath / '.log'
+    # if not update_log_path.is_dir():
+    #     update_log_path.mkdir(parents=True, exist_ok=True)
+    #     logging.warning(f'update log path -{update_log_path}- did not exist before.')
 
-    _update_log = update_log_path / 'update.log'
+    # _update_log = update_log_path / 'update.log'
 
 
 def _default_logger():

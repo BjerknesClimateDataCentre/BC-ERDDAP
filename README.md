@@ -7,7 +7,7 @@ $ python3 -m bcedd
 ### To get help/usage message
 $ python3 -m bcedd --help
 
-## To run bcedd inside a scheduler
+## To run bcedd inside a wrapper
 $ python3 wrapper.py
 
 ## Configuration file
@@ -29,8 +29,10 @@ paths:
 update:
     # freq: updating frequency to be applied ['weekly', 'monthly']
     freq: 'monthly'
-    # yaml: filename with datasets to work with
-    yaml: 'example.yaml'
+    # eddyaml: yaml filename of remote ERDDAP server to work with
+    erddap: 'erddap.yaml'
+    # datasetid: yaml filename of datasetIDs to keep
+    datasetid: 'datasetid.yaml'
 
 log:
     # filename: logger filename

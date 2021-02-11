@@ -11,9 +11,7 @@ import yaml
 # import from my project
 import bcedd.setupcfg as setupcfg
 import bcedd.xml4Erddap as x4edd
-
-_type_list = ['table', 'grid']
-_freq_list = ['weekly', 'monthly']
+import bcedd.timing
 
 
 # ----------------------------------------------
@@ -41,12 +39,12 @@ def _check_param(param_):
     if not isinstance(param_['type'], list):
         raise TypeError(f"'type' must be a list in yaml file")
     else:
-        if any(tt not in _type_list for tt in param_['type']):
-            raise ValueError(f"'type' value must be choose in {_type_list}")
+        if any(tt not in setupcfg.authorised_eddtype for tt in param_['type']):
+            raise ValueError(f"'type' value must be choose in {setupcfg.authorised_eddtype}")
 
     ff = param_['freq']
-    if ff not in _freq_list:
-        raise ValueError(f"'freq' value must be choose in _freq_list")
+    if ff not in setupcfg.authorised_frequency:
+        raise ValueError(f"'freq' value must be choose in {setupcfg.authorised_frequency}")
 
 
 def main():
