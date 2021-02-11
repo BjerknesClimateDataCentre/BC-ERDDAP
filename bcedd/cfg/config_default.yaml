@@ -5,7 +5,7 @@ paths:
     erddap: '/home/jpa029/Code/apache-tomcat-8.5.57'
     # dataset: path where store file from each dataset
     dataset:
-        # path where store xml file from ICOS CP for each dataset
+        # path where store xml file for each remote ERDDAP server
         xml: '/home/jpa029/Data/BC-ERDDAP/dataset/xml'
     # log: path where store output log file
     log: '/home/jpa029/Data/BC-ERDDAP/log'
@@ -13,8 +13,10 @@ paths:
 update:
     # freq: updating frequency to be applied ['weekly', 'monthly']
     freq: 'monthly'
-    # yaml: filename with ERDDAP server to work with
-    yaml: 'erddap.yaml'
+    # eddyaml: yaml filename of remote ERDDAP server to work with
+    erddap: 'erddap.yaml'
+    # datasetid: yaml filename of datasetIDs to keep
+    datasetid: 'datasetid.yaml'
 
 log:
     # filename: logger filename

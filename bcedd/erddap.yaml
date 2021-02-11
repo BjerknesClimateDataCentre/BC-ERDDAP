@@ -7,19 +7,19 @@
 #
 icoscp:
   url: 'https://bluecloud.icos-cp.eu/erddap'
-  type: ['grid', 'table']
+  type: ['table']
   freq: 'weekly'
 ifremer:
   url: 'https://www.ifremer.fr/erddap'
-  type: ['grid', 'table']
+  type: ['table']
   freq: 'monthly'
 socat:
   url: 'https://ferret.pmel.noaa.gov/socat/erddap'
-  type: ['grid', 'table']
+  type: []
   freq: 'monthly'
 jeodpp:
   url: 'https://jeodpp.jrc.ec.europa.eu/services/erddap'
-  type: ['grid', 'table']
+  type: []
   freq: 'monthly'
 emodnet:
   url: 'https://erddap.emodnet-physics.eu/erddap'

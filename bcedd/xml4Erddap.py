@@ -10,6 +10,7 @@ import os
 import subprocess
 import logging
 import warnings
+import yaml
 # import from other lib
 import lxml.etree as etree
 # import from my project
@@ -96,21 +97,21 @@ def generate(srcname_, url_, type_):
             raise ValueError('file {} does not contains tags: {} and {}'
                              .format(ds, tagline, re.sub('Begin', 'End', tagline)))
 
-        # add tag to dataset name
-        dstag = Path.joinpath(datasetSubDir, _ds + tag)
-        cmd.append('-i' + str(dstag))
-        #
+    # add tag to dataset name
+    dstag = Path.joinpath(datasetSubDir, _ds + tag)
+    cmd.append('-i' + str(dstag))
+    #
 
-        # run process 'GenerateDatasetsXml.sh' from directory 'erddapWebInfDir' with arguments 'cmd'
-        # => creates file: ds
-        _logger.info(f'creates dataset: {ds}')
-        _logger.debug(f'from directory {setupcfg.erddapWebInfDir}, run process {cmd}')
-        process = subprocess.run(cmd,
-                                 cwd=setupcfg.erddapWebInfDir,
-                                 stdout=subprocess.PIPE,
-                                 timeout=60,
-                                 universal_newlines=True)
-        process.check_returncode()
+    # run process 'GenerateDatasetsXml.sh' from directory 'erddapWebInfDir' with arguments 'cmd'
+    # => creates file: ds
+    _logger.info(f'creates dataset: {ds}')
+    _logger.debug(f'from directory {setupcfg.erddapWebInfDir}, run process {cmd}')
+    process = subprocess.run(cmd,
+                             cwd=setupcfg.erddapWebInfDir,
+                             stdout=subprocess.PIPE,
+                             timeout=60,
+                             universal_newlines=True)
+    process.check_returncode()
 
 
 def concatenate():
@@ -135,7 +136,7 @@ def concatenate():
     return dsxmlout
 
 
-def check_duplicate(ds, out=None):
+def check_datasetid(ds, out=None):
     """
     :param ds: str
        input filename
@@ -164,6 +165,28 @@ def check_duplicate(ds, out=None):
         if node.text is None:
             node.text = ''
 
+    # sort dataset ID
+    with open(setupcfg.dsyaml, 'r') as stream:
+        try:
+            data_loaded = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    # Use a `set` to keep track of "selected" elements with good lookup time.
+    keep = set(data_loaded)
+
+    # The iter method does a recursive traversal
+    # for node in root.iter('dataset'):
+    for node in root.findall('dataset'):
+        # print(f'node: tag -{node.tag}- attribute -{node.attrib}-')
+        # Since the id is what defines a duplicate for you
+        if 'datasetID' in node.attrib:
+            current = node.get('datasetID')
+            # Not in keep means it's a useless, remove it
+            if current not in keep:
+                node.getparent().remove(node)
+
+    # remove duplicate
     # Use a `set` to keep track of "visited" elements with good lookup time.
     visited = set()
     # The iter method does a recursive traversal

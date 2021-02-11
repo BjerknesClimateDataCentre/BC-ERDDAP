@@ -22,7 +22,7 @@ import bcedd
 # --- module's variable ------------------------
 # public
 global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, logPath, bceddPath, \
-    log_filename, eddyaml, freq
+    log_filename, eddyaml, dsyaml, freq
 # private
 global _update_log
 
@@ -41,16 +41,30 @@ def _chk_update_freq(cfg_):
         raise  # Throw exception again so calling code knows it happened
 
 
-def _chk_update_yaml(cfg_):
+def _chk_update_dsyaml(cfg_):
+    """ """
+    global dsyaml
+
+    try:
+        dsyaml = bceddPath / cfg_['update']['datasetid'].get(str)
+    except confuse.exceptions.NotFoundError:
+        pass
+    except Exception:
+        logging.exception(f'Invalid yaml filename of datasetID list to be used; '
+                          f'Check arguments/configuration file(s)')
+        raise  # Throw exception again so calling code knows it happened
+
+
+def _chk_update_eddyaml(cfg_):
     """ """
     global eddyaml
 
     try:
-        eddyaml = bceddPath / cfg_['update']['yaml'].get(str)
+        eddyaml = bceddPath / cfg_['update']['erddap'].get(str)
     except confuse.exceptions.NotFoundError:
         pass
     except Exception:
-        logging.exception(f'Invalid yaml filename of ERDDAP list; '
+        logging.exception(f'Invalid yaml filename of ERDDAP servers list; '
                           f'Check arguments/configuration file(s)')
         raise  # Throw exception again so calling code knows it happened
 
@@ -66,7 +80,8 @@ def _chk_update(cfg_=None):
         cfg_.default_config_path = _ / confuse.DEFAULT_FILENAME
 
     try:
-        _chk_update_yaml(cfg_)
+        _chk_update_dsyaml(cfg_)
+        _chk_update_eddyaml(cfg_)
         _chk_update_freq(cfg_)
     except Exception:
         logging.exception('Something goes wrong when checking update')
@@ -322,10 +337,15 @@ def _parse():
                         help="updating frequency to be applied",
                         dest='update.freq'
                         )
-    parser.add_argument("-y", "--yaml",
+    parser.add_argument("--erddap",
                         type=str,
-                        help="yaml file with ERDDAP server to work with",
-                        dest='update.yaml'
+                        help="yaml file with ERDDAP servers to work with",
+                        dest='update.eddyaml'
+                        )
+    parser.add_argument("--datasetid",
+                        type=str,
+                        help="yaml file with datasetIDs to keep",
+                        dest='update.dsyaml'
                         )
 
     # parse arguments

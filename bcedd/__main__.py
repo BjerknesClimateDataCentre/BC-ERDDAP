@@ -56,7 +56,7 @@ def main():
     setupcfg.main()
     _logger = logging.getLogger(__name__)
 
-    # read yaml
+    # read remote ERDDAP server yaml
     with open(setupcfg.eddyaml, 'r') as stream:
         try:
             data_loaded = yaml.safe_load(stream)
@@ -84,8 +84,8 @@ def main():
 
     # aggregate
     dsxmlout = x4edd.concatenate()
-    # check duplicate
-    x4edd.check_duplicate(dsxmlout)
+    # check datasetid (select some, and remove duplicate)
+    x4edd.check_datasetid(dsxmlout)
     # create hard link
     x4edd.replaceXmlBy(dsxmlout)
 
