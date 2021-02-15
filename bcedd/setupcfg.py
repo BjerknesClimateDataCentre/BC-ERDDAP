@@ -21,18 +21,30 @@ import bcedd
 
 # --- module's variable ------------------------
 # public
-global erddapPath, erddapWebInfDir, erddapContentDir, datasetXmlPath, datasetCsvPath, logPath, bceddPath, \
-    log_filename, eddyaml, dsyaml, freq, authorised_frequency, authorised_eddtype
+global erddapPath, erddapWebInfDir, erddapContentDir, \
+       datasetXmlPath, datasetCsvPath, \
+       bceddPath, logPath, log_filename, \
+       authorised_frequency, authorised_eddtype, \
+       extraParam
+
 # private
-# global _update_log
+global _cfg_path #_update_log
 
 
-def _chk_cfg_file(cfg_, filename_):
-    """ """
-    cfg_path = Path(_find_package_path(bcedd.__pkg_cfg__))
-    if not cfg_path.is_dir():
-        logging.exception('Can not find configuration path')
-        raise FileNotFoundError
+def _search_file(cfg_, filename_):
+    """ search file in several directory
+
+    look for file 'filename_' in:
+    - local directory or given path
+    - package directory
+    - user    config directory
+    - package config directory
+
+    :param cfg_:
+    :param filename_: name of the file search
+    :return: absolute path to filename_
+    """
+    global _cfg_path
 
     # check file exist
     if Path(filename_).is_file():
@@ -41,22 +53,43 @@ def _chk_cfg_file(cfg_, filename_):
     elif Path(bceddPath / filename_).is_file():
         # ~/path/to/package/ directory
         return Path(bceddPath / filename_)
-    elif Path(cfg_path / filename_).is_file():
+    elif Path(_cfg_path / filename_).is_file():
         # package config directory
         # ~/path/to/package/cfg directory
-        return Path(cfg_path / filename_)
+        return Path(_cfg_path / filename_)
     elif Path(Path(cfg_.config_dir()) / filename_).is_file():
         # user config directory
         # ~/.config/<package> directory
         return Path(Path(cfg_.config_dir()) / filename_)
     else:
         logging.exception(f"can not find file -{filename_}-; "
-                                f'Check arguments/configuration file(s)')
+                          f'Check arguments/configuration file(s)')
         raise FileNotFoundError
 
 
-def _chk_update_freq(cfg_):
-    """ """
+def _chk_config_extra(cfg_):
+    """
+    """
+    global extraParam
+
+    try:
+        extraParam = cfg_['extra']['parameters'].get(str)
+    except confuse.exceptions.NotFoundError:
+        logging.exception(f'Can not find extra parameters; '
+                          f'Check arguments/configuration file(s)')
+        raise  # Throw exception again so calling code knows it happened
+    except Exception:
+        logging.exception(f'Invalid parameters yaml filename; '
+                          f'Check arguments/configuration file(s)')
+        raise  # Throw exception again so calling code knows it happened
+
+    # check config file exist
+    extraParam = _search_file(cfg_, extraParam)
+
+
+def _chk_config_update(cfg_):
+    """
+    """
     global freq
 
     try:
@@ -68,146 +101,113 @@ def _chk_update_freq(cfg_):
                           f'Check arguments/configuration file(s)')
         raise  # Throw exception again so calling code knows it happened
 
-
-def _chk_update_dsyaml(cfg_):
-    """ """
-    global dsyaml
-
-    try:
-        dsyaml = cfg_['update']['datasetid'].get(str)
-    except confuse.exceptions.NotFoundError:
-        pass
-    except Exception:
-        logging.exception(f'Invalid yaml filename of datasetID to keep; '
-                          f'Check arguments/configuration file(s)')
+    if freq not in authorised_frequency:
+        logging.exception(f"update frequency must be choose in {authorised_frequency}")
         raise  # Throw exception again so calling code knows it happened
 
-    # check config file exist
-    dsyaml = _chk_cfg_file(cfg_, dsyaml)
+
+def _chk_config_log(cfg_):
+    """
+    """
+    # TODO
+    pass
 
 
-def _chk_update_eddyaml(cfg_):
-    """ """
-    global authorised_frequency, authorised_eddtype, eddyaml
+def _chk_config_authorised(cfg_):
+    """
+    """
+    global authorised_frequency, authorised_eddtype
 
     # Authorised eddtype
     try:
-        authorised_eddtype = cfg_['update']['authorised_eddtype'].get(list)
+        authorised_eddtype = cfg_['authorised']['eddtype'].get(list)
     except confuse.exceptions.NotFoundError:
         authorised_eddtype = None
         # do not raise other exception as it will be by calling function
 
     # Authorised frequency
     try:
-        authorised_frequency = cfg_['update']['authorised_frequency'].get(list)
+        authorised_frequency = cfg_['authorised']['frequency'].get(list)
     except confuse.exceptions.NotFoundError:
         authorised_frequency = None
         # do not raise other exception as it will be by calling function
 
+
+def _chk_config_paths(cfg_):
+    """
+    """
     try:
-        eddyaml = cfg_['update']['erddap'].get(str)
-    except confuse.exceptions.NotFoundError:
-        pass
-    except Exception:
-        logging.exception(f'Invalid yaml filename of ERDDAP servers list; '
-                          f'Check arguments/configuration file(s)')
-        raise  # Throw exception again so calling code knows it happened
+        # check path to ERDDAP, and set up global variables
+        # path where ERDDAP has been previously installed
+        global erddapPath, erddapWebInfDir, erddapContentDir
+        #
+        erddapPath = Path(cfg_['paths']['erddap'].get(str))
+        if not erddapPath.is_dir():
+            raise FileNotFoundError('can not find ERDDAP path {}.\n'
+                                    'Check config file(s) {} and/or {}'.format(erddapPath,
+                                                                               cfg_.user_config_path(),
+                                                                               cfg_.default_config_path))
+        logging.debug(f'erddapPath: {erddapPath}')
 
-    # check config file exist
-    eddyaml = _chk_cfg_file(cfg_, eddyaml)
+        erddapWebInfDir = erddapPath / 'webapps' / 'erddap' / 'WEB-INF'
+        if not erddapWebInfDir.is_dir():
+            raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
+                                    'check ERDDAP installation. '.format(erddapWebInfDir))
+        logging.debug(f'erddapWebInfDir: {erddapWebInfDir}')
 
+        erddapContentDir = erddapPath / 'content' / 'erddap'
+        if not erddapContentDir.is_dir():
+            raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
+                                    'check ERDDAP installation'.format(erddapContentDir))
+        logging.debug(f'erddapContentDir: {erddapContentDir}')
 
-def _chk_update(cfg_=None):
-    """ """
-    if cfg_ is None:
-        cfg_ = confuse.Configuration('bcedd', modname=bcedd.__pkg_cfg__)  # Get a value from your YAML file
-        _ = Path(cfg_._package_path)
-        cfg_.default_config_path = _ / confuse.DEFAULT_FILENAME
+        # check path to xml files, and set up global variable
+        # path where xml files will be stored
+        global datasetXmlPath
+        #
+        datasetXmlPath = Path(cfg_['paths']['dataset']['xml'].as_filename())
+        if not datasetXmlPath.is_dir():
+            raise FileNotFoundError('can not find path where store dataset xml file {}.\n'
+                                    'Check config file(s) {} and/or {}'.format(datasetXmlPath,
+                                                                               cfg_.user_config_path(),
+                                                                               cfg_.default_config_path))
+        logging.debug(f'datasetXmlPath: {datasetXmlPath}')
 
-    try:
-        _chk_update_dsyaml(cfg_)
-        _chk_update_eddyaml(cfg_)
-        _chk_update_freq(cfg_)
-    except Exception:
-        logging.exception('Something goes wrong when checking update')
-        raise  # Throw exception again so calling code knows it happened
+        # check path to log files, and set up global variable
+        # path where log files will be stored
+        global logPath
+        #
+        logPath = Path(cfg_['paths']['log'].get(str))
+        if not logPath.is_dir():
+            logPath.mkdir(parents=True, exist_ok=True)
+            warnings.warn('log path {} did not exist before.\n Check config file(s) {} and/or {}'.
+                          format(logPath, cfg_.user_config_path(), cfg_.default_config_path))
 
-
-def _chk_path_log(cfg_):
-    """ check path to log files, and set up global variable
-
-    path where log files will be stored
-    """
-    global logPath
-
-    logPath = Path(cfg_['paths']['log'].get(str))
-    if not logPath.is_dir():
-        logPath.mkdir(parents=True, exist_ok=True)
-        warnings.warn('log path {} did not exist before.\n Check config file(s) {} and/or {}'.
-                      format(logPath, cfg_.user_config_path(), cfg_.default_config_path))
-
-    logging.debug(f'logPath: {logPath}')
-
-
-def _chk_path_xml(cfg_):
-    """ check path to xml files, and set up global variable
-
-    path where xml files will be stored
-    """
-    global datasetXmlPath
-
-    datasetXmlPath = Path(cfg_['paths']['dataset']['xml'].as_filename())
-    if not datasetXmlPath.is_dir():
-        raise FileNotFoundError('can not find path where store dataset xml file {}.\n'
-                                'Check config file(s) {} and/or {}'.format(datasetXmlPath,
-                                                                           cfg_.user_config_path(),
-                                                                           cfg_.default_config_path))
-    logging.debug(f'datasetXmlPath: {datasetXmlPath}')
+        logging.debug(f'logPath: {logPath}')
 
 
-def _chk_path_edd(cfg_):
-    """ check path to ERDDAP, and set up global variables
-
-    path where ERDDAP has been previously installed
-    """
-    global erddapPath, erddapWebInfDir, erddapContentDir
-
-    erddapPath = Path(cfg_['paths']['erddap'].get(str))
-    if not erddapPath.is_dir():
-        raise FileNotFoundError('can not find ERDDAP path {}.\n'
-                                'Check config file(s) {} and/or {}'.format(erddapPath,
-                                                                           cfg_.user_config_path(),
-                                                                           cfg_.default_config_path))
-    logging.debug(f'erddapPath: {erddapPath}')
-
-    erddapWebInfDir = erddapPath / 'webapps' / 'erddap' / 'WEB-INF'
-    if not erddapWebInfDir.is_dir():
-        raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
-                                'check ERDDAP installation. '.format(erddapWebInfDir))
-    logging.debug(f'erddapWebInfDir: {erddapWebInfDir}')
-
-    erddapContentDir = erddapPath / 'content' / 'erddap'
-    if not erddapContentDir.is_dir():
-        raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
-                                'check ERDDAP installation'.format(erddapContentDir))
-    logging.debug(f'erddapContentDir: {erddapContentDir}')
-
-
-def _chk_path(cfg_=None):
-    """
-
-    """
-    if cfg_ is None:
-        cfg_ = confuse.Configuration('bcedd', modname=bcedd.__pkg_cfg__)  # Get a value from your YAML file
-        _ = Path(cfg_._package_path)
-        cfg_.default_config_path = _ / confuse.DEFAULT_FILENAME
-
-    try:
-        _chk_path_edd(cfg_)
-        _chk_path_xml(cfg_)
-        _chk_path_log(cfg_)
     except Exception:
         logging.exception('Something goes wrong when checking paths')
+        raise  # Throw exception again so calling code knows it happened
+
+
+def _chk_config(cfg_):
+    """
+    :param cfg_: config from confuse _setup_config
+    """
+    try:
+        # check paths parameters from configuration file(s)
+        _chk_config_paths(cfg_)
+        # check log parameters from configuration file(s)
+        _chk_config_log(cfg_)
+        # check authorised list from configuration file(s)
+        _chk_config_authorised(cfg_)
+        # check update list from configuration file(s)
+        _chk_config_update(cfg_)
+        # check update parameters from configuration file(s)
+        _chk_config_extra(cfg_)
+    except Exception:
+        logging.exception('Something goes wrong when checking configuration file')
         raise  # Throw exception again so calling code knows it happened
 
 
@@ -257,14 +257,14 @@ def _setup_logger(config_):
     > CRITICAL:
     > A serious error, indicating that the program itself may be unable to continue running.
     """
-    global log_filename
+    global log_filename, _cfg_path
 
-    cfg_path = Path(_find_package_path(bcedd.__pkg_cfg__))
-    if not cfg_path.is_dir():
+    _cfg_path = Path(_find_package_path(bcedd.__pkg_cfg__))
+    if not _cfg_path.is_dir():
         logging.exception('Can not find configuration path')
         raise FileNotFoundError
 
-    _logcfg = cfg_path / 'logging.yaml'
+    _logcfg = _cfg_path / 'logging.yaml'
     try:
         with open(_logcfg, 'rt') as file:
             cfg_log = yaml.safe_load(file.read())
@@ -382,15 +382,10 @@ def _parse():
                         help="updating frequency to be applied",
                         dest='update.freq'
                         )
-    parser.add_argument("--erddap",
+    parser.add_argument("--param",
                         type=str,
-                        help="yaml file with ERDDAP servers to work with",
-                        dest='update.eddyaml'
-                        )
-    parser.add_argument("--datasetid",
-                        type=str,
-                        help="yaml file with datasetIDs to keep",
-                        dest='update.dsyaml'
+                        help="parameters configuration file",
+                        dest='parameters.yaml'
                         )
 
     # parse arguments
@@ -484,14 +479,8 @@ def main():
     # read logging configuration file
     _setup_logger(config)
 
-    # check paths parameters from configuration file(s)
-    _chk_path(config)
-
-    # check update parameters from configuration file(s)
-    _chk_update(config)
-
-    # TODO check log parameters from configuration file(s)
-    # _chk_log(config)
+    # check configuration file
+    _chk_config(config)
 
 
 if __name__ == '__main__':

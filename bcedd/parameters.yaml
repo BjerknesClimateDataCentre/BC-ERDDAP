@@ -1,0 +1,44 @@
+# This is the parameters config file for bcedd
+
+# sever: list of remote ERDDAP server to be check
+server:
+  # erddap server's name:
+  #   url: 'https://template'
+  #   type:           # ['table', 'grid']
+  #     - 'table'
+  #     - 'grid'
+  #   freq: 'weekly'  # ['weekly', 'monthly']
+  icoscp:
+    url: 'https://bluecloud.icos-cp.eu/erddap'
+    type:
+      - 'table'
+    freq: 'weekly'
+  ifremer:
+    url: 'https://www.ifremer.fr/erddap'
+    type: 'table'
+    freq: 'monthly'
+  socat:
+    url: 'https://ferret.pmel.noaa.gov/socat/erddap'
+    type:
+    freq: 'monthly'
+  jeodpp:
+    url: 'https://jeodpp.jrc.ec.europa.eu/services/erddap'
+    type:
+    freq: 'monthly'
+  emodnet:
+    url: 'https://erddap.emodnet-physics.eu/erddap'
+    type:
+      - 'grid'
+      - 'table'
+    freq: 'monthly'
+
+# keep: list of datasetID to keep, whatever the remote ERDDAP server
+keep:
+  #  - datasetid1
+  #  - datasetid2
+  - ArgoFloats
+  - ArgoFloats-synthetic-BGC
+  - EP_ERD_INT_PHPH_AL_PR_NRT
+  - EP_ERD_INT_PHPH_AL_TS_NRT
+  - GLODAPv2_2016b_CMEMS
+  - SOCATv2020_tracks_gridded_yearly

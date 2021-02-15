@@ -10,18 +10,7 @@ paths:
     # log: path where store output log file
     log: '/home/jpa029/Data/BC-ERDDAP/log'
 
-update:
-    # freq: updating frequency to be applied ['weekly', 'monthly']
-    freq: 'monthly'
-    # eddyaml: yaml filename of remote ERDDAP server to work with
-    erddap: 'erddap.yaml'
-    # datasetid: yaml filename of datasetIDs to keep
-    datasetid: 'datasetid.yaml'
-    # list of authorised eddtype
-    authorised_eddtype: ['table', 'grid']
-    # list of authorised frequency
-    authorised_frequency: ['weekly', 'monthly']
-
+# log:
 log:
     # filename: logger filename
     # filename:
@@ -31,3 +20,18 @@ log:
     verbose: False
     # level: log level [DEBUG, INFO, WARN, ERROR, CRITICAL]
     level: 'INFO'
+
+authorised:
+    # eddtype: list of authorised eddtype
+    eddtype: ['table', 'grid']
+    # frequency: list of authorised frequency
+    frequency: ['weekly', 'monthly']
+
+# update:
+update:
+    # freq: update frequency to be applied ['weekly', 'monthly']
+    freq: 'monthly'
+
+extra:
+    # parameters: extra parameters configuration file for bcedd
+    parameters: 'parameters.yaml'

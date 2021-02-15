@@ -3,26 +3,31 @@
 #
 # erddap server's name:
 #   url: 'https://template'
-#   type: 'table   # ['grid', 'table']
-#   freq: 'weekly' # ['weekly', 'monthly']
+#   type:           # ['table', 'grid']
+#     - 'table'
+#     - 'grid'
+#   freq: 'weekly'  # ['weekly', 'monthly']
 #
 icoscp:
   url: 'https://bluecloud.icos-cp.eu/erddap'
-  type: ['table']
+  type:
+    - 'table'
   freq: 'weekly'
 ifremer:
   url: 'https://www.ifremer.fr/erddap'
-  type: ['table']
+  type: 'table'
   freq: 'monthly'
 socat:
   url: 'https://ferret.pmel.noaa.gov/socat/erddap'
-  type: []
+  type:
   freq: 'monthly'
 jeodpp:
   url: 'https://jeodpp.jrc.ec.europa.eu/services/erddap'
-  type: []
+  type:
   freq: 'monthly'
 emodnet:
   url: 'https://erddap.emodnet-physics.eu/erddap'
-  type: ['grid', 'table']
+  type:
+    - 'grid'
+    - 'table'
   freq: 'monthly'

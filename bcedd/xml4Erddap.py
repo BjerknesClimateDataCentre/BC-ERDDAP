@@ -15,6 +15,7 @@ import yaml
 import lxml.etree as etree
 # import from my project
 import bcedd.setupcfg as setupcfg
+import bcedd.parameters as parameters
 
 # --- module's variable ------------------------
 # load logger
@@ -164,15 +165,11 @@ def check_datasetid(ds, out=None):
         if node.text is None:
             node.text = ''
 
-    # sort dataset ID
-    with open(setupcfg.dsyaml, 'r') as stream:
-        try:
-            data_loaded = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
+    # check parameters file
+    param = parameters.main()
 
     # Use a `set` to keep track of "selected" elements with good lookup time.
-    keep = set(data_loaded['keep'])
+    keep = set(param['keep'])
 
     # The iter method does a recursive traversal
     # for node in root.iter('dataset'):
