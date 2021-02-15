@@ -11,7 +11,9 @@ $ python3 -m bcedd --help
 $ python3 wrapper.py
 
 ## Configuration file
-put your own configuration file in `~/.config/bcedd/config.yaml`
+This file contains configuration parameters
+
+Put your own configuration file in `~/.config/bcedd/config.yaml`
 
 ```python
 # This is the default config file for bcedd
@@ -26,14 +28,7 @@ paths:
     # log: path where store output log file
     log: '/home/jpa029/Data/BC-ERDDAP/log'
 
-update:
-    # freq: updating frequency to be applied ['weekly', 'monthly']
-    freq: 'monthly'
-    # eddyaml: yaml filename of remote ERDDAP server to work with
-    erddap: 'erddap.yaml'
-    # datasetid: yaml filename of datasetIDs to keep
-    datasetid: 'datasetid.yaml'
-
+# log:
 log:
     # filename: logger filename
     # filename:
@@ -42,9 +37,53 @@ log:
     verbose: False
     # level: log level [DEBUG, INFO, WARN, ERROR, CRITICAL]
     level: 'INFO'
+
+authorised:
+    # eddtype: list of authorised eddtype
+    eddtype: ['table', 'grid']
+    # frequency: list of authorised frequency
+    frequency: ['weekly', 'monthly']
+
+# update:
+update:
+    # freq: update frequency to be applied ['weekly', 'monthly']
+    freq: 'monthly'
+
+extra:
+    # parameters: extra parameters configuration file for bcedd
+    parameters: 'parameters.yaml'
 ```
 
 > **NOTE:** arguments overwrite value in configuration file.
+
+### parameters files
+This file contains parameters to run
+
+```python
+# This is the parameters file for bcedd
+
+# sever: list of remote ERDDAP server to be check
+server:
+  # erddap server's name:
+  #   url: 'https://template'
+  #   type:           # ['table', 'grid']
+  #     - 'table'
+  #     - 'grid'
+  #   freq: 'weekly'  # ['weekly', 'monthly']
+  emodnet:
+    url: 'https://erddap.emodnet-physics.eu/erddap'
+    type:
+      - 'grid'
+      - 'table'
+    freq: 'monthly'
+
+# keep: list of datasetID to keep, whatever the remote ERDDAP server
+keep:
+  #  - datasetid1
+  #  - datasetid2
+  - EP_ERD_INT_PHPH_AL_PR_NRT
+  - EP_ERD_INT_PHPH_AL_TS_NRT
+```
 
 ## To run tests
 see [HERE](tests/README.md)

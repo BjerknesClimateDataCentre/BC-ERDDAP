@@ -11,41 +11,9 @@ from time import strftime, localtime
 # import from other lib
 # import from my project
 import bcedd.setupcfg as setupcfg
+import bcedd.parameters as parameters
 import bcedd.xml4Erddap as x4edd
 import bcedd.timing
-
-
-# ----------------------------------------------
-def is_url(url_):
-    """
-    check if argument is an url
-
-    :param url_: string of url to check
-
-    :return: boolean
-    """
-    try:
-        result = urlparse(url_)
-        return all([result.scheme, result.netloc])
-    except Exception:
-        return False
-
-
-def _check_param(param_):
-    """ """
-
-    if not is_url(param_['url']):
-        raise TypeError(f"invalid type for 'url'")
-
-    if not isinstance(param_['type'], list):
-        raise TypeError(f"'type' must be a list in yaml file")
-    else:
-        if any(tt not in setupcfg.authorised_eddtype for tt in param_['type']):
-            raise ValueError(f"'type' value must be choose in {setupcfg.authorised_eddtype}")
-
-    ff = param_['freq']
-    if ff not in setupcfg.authorised_frequency:
-        raise ValueError(f"'freq' value must be choose in {setupcfg.authorised_frequency}")
 
 
 def main():
@@ -55,22 +23,12 @@ def main():
     setupcfg.main()
     _logger = logging.getLogger(__name__)
 
-    # read remote ERDDAP server yaml
-    with open(setupcfg.eddyaml, 'r') as stream:
-        try:
-            data_loaded = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
+    # check parameters file
+    param = parameters.main()
 
     # select task to be done
     bindings = []
-    for k, v in data_loaded.items():
-        # check param
-        try:
-            _check_param(v)
-        except Exception as err:
-            raise Exception(f"Error in yaml file for {k}:\n\t{err}")
-
+    for k, v in param['server'].items():
         # select frequency
         if v['freq'] == setupcfg.freq:
             # unpack type list
@@ -92,6 +50,7 @@ def main():
     _logger.info(f'-------------------')
     _logger.info(f'end time: {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
     _logger.info(f'-------------------')
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
