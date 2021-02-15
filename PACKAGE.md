@@ -16,7 +16,7 @@ if needed. You should always upload a source archive and provide built archives 
 $ python3 -m pip install path/to/package/dist/icp2edd.SOME_RELEASE.tar.gz
 
 ## How to install package in development mode
-$ pip install -e path/to/package
+$ pip(3) install -e path/to/package
 
 ## How to install one of github hosted repo's specific tag
 ### using git clone
@@ -26,7 +26,7 @@ $ git clone -b { tag name } --single-branch { repo name } .
 > --single-branch flag prevents fetching all the branches in the cloned repository
 
 ### using pip
-$ pip install -e git://github.com/{ username }/{ repo name }.git@{ tag name }#egg={ desired egg name }
+$ pip(3) install -e git://github.com/{ username }/{ repo name }.git@{ tag name }#egg={ desired egg name }
 
 ## Version
 
