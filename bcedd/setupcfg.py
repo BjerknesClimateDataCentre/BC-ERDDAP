@@ -149,7 +149,8 @@ def _chk_config_paths(cfg_):
                                                                                cfg_.default_config_path))
         logging.debug(f'erddapPath: {erddapPath}')
 
-        erddapWebInfDir = erddapPath / 'webapps' / 'erddap' / 'WEB-INF'
+        # erddapWebInfDir = erddapPath / 'webapps' / <ROOT> / 'WEB-INF'
+        erddapWebInfDir = Path(cfg_['paths']['webinf'].get(str))
         if not erddapWebInfDir.is_dir():
             raise FileNotFoundError('can not find ERDDAP sub-directory {} \n'
                                     'check ERDDAP installation. '.format(erddapWebInfDir))
@@ -298,7 +299,7 @@ def _setup_logger(config_):
 
             try:
                 # rename log file with config or parser value
-                _log_filename = config_['log']['filename'].get(str)
+                _log_filename = config_['log']['filename'].get()
                 if _log_filename is not None:
                     cfg_log['handlers']['file']['filename'] = _log_filename
             except confuse.exceptions.NotFoundError:
@@ -385,7 +386,19 @@ def _parse():
     parser.add_argument("--param",
                         type=str,
                         help="parameters configuration file",
-                        dest='parameters.yaml'
+                        dest='extra.parameters'
+                        )
+    parser.add_argument("--arguments",
+                        action="store_const",
+                        const=True,
+                        help="print arguments value (from config file and/or inline argument) and exit",
+                        dest='arguments'
+                        )
+    parser.add_argument("--version",
+                        action="store_const",
+                        const=True,
+                        help="print release version and exit",
+                        dest='version'
                         )
 
     # parse arguments
@@ -453,6 +466,33 @@ def _default_logger():
     # redirect warnings issued by the warnings module to the logging system.
     logging.captureWarnings(True)
 
+def _show_arguments(cfg_):
+    """ """
+    print(f"paths.erddap        : {erddapPath}")
+    print(f"paths.webinf        : {erddapWebInfDir}")
+    print(f"paths.dataset.xml   : {datasetXmlPath}")
+    print(f"paths.log           : {logPath}\n")
+
+    print(f"log.filename        : {log_filename} ")
+    print(f"log.verbose         : {cfg_['log']['verbose']}  ")
+    print(f"log.level           : {cfg_['log']['level']}\n")
+
+    print(f"authorised.eddtype  : {authorised_eddtype}")
+    print(f"authorised.frequency: {authorised_frequency}\n")
+
+    print(f"update.freq         : {cfg_['update']['freq']}\n")
+
+    print(f"extra.parameters    : {extraParam}\n")
+    exit(0)
+
+
+def _show_version():
+    """ """
+    # print release version
+    print(f'package: {bcedd.__name__}')
+    print(f'version: {bcedd.__version__}')
+    exit(0)
+
 
 def main():
     """set up bcedd
@@ -473,6 +513,9 @@ def main():
     # read command line arguments
     args = _parse()
 
+    if args.version:
+        _show_version()
+
     # overwrite configuration file parameter with parser arguments
     config.set_args(args, dots=True)
 
@@ -482,6 +525,8 @@ def main():
     # check configuration file
     _chk_config(config)
 
+    if args.arguments:
+        _show_arguments(config)
 
 if __name__ == '__main__':
     main()

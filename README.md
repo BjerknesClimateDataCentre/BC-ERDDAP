@@ -12,6 +12,7 @@ $ python3 wrapper.py
 
 ## Configuration file
 This file contains configuration parameters
+> **NOTE:** arguments overwrite value in configuration file.
 
 Put your own configuration file in `~/.config/bcedd/config.yaml`
 
@@ -30,8 +31,8 @@ paths:
 
 # log:
 log:
-    # filename: logger filename
-    # filename:
+    # filename: logger filename [default 'debug.log']
+    filename:
     # below, apply only on standard output log
     # verbose: activate verbose mode [True|False]
     verbose: False
@@ -54,9 +55,8 @@ extra:
     parameters: 'parameters.yaml'
 ```
 
-> **NOTE:** arguments overwrite value in configuration file.
 
-### parameters files
+### Parameters files
 This file contains parameters to run
 
 ```python

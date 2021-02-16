@@ -3,6 +3,8 @@
 paths:
     # erddap: path of the main ERDDAP repository [tomcat]
     erddap: '/home/jpa029/Code/apache-tomcat-8.5.57'
+    # webinf: path to the 'WEB-INF' repository
+    webinf: '/home/jpa029/Code/apache-tomcat-8.5.57/webapps/ROOT/WEB-INF'
     # dataset: path where store file from each dataset
     dataset:
         # path where store xml file for each remote ERDDAP server
@@ -13,7 +15,7 @@ paths:
 # log:
 log:
     # filename: logger filename
-    # filename:
+    filename:
     # below, apply only on standard output log
     # TODO find a way to make it work, overwrite by argument
     # verbose: activate verbose mode [True|False]
