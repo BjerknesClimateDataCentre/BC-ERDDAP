@@ -8,37 +8,45 @@ server:
   #     - 'table'
   #     - 'grid'
   #   freq: 'weekly'  # ['weekly', 'monthly']
+  # keep: list of datasetID to keep, 'all' mean to keep all datasetIDs
+  #  - datasetid1
+  #  - datasetid2
   icoscp:
-    url: 'https://bluecloud.icos-cp.eu/erddap'
+    url: 'https://erddap.icos-cp.eu/erddap'
     type:
       - 'table'
     freq: 'weekly'
+    # list of datasetID to keep, 'all' mean to keep all datasetIDs
+    keep: 'all'
   ifremer:
     url: 'https://www.ifremer.fr/erddap'
     type: 'table'
     freq: 'monthly'
+    # list of datasetID to keep, 'all' mean to keep all datasetIDs
+    keep:
+      - ArgoFloats
+      - ArgoFloats-synthetic-BGC
   socat:
     url: 'https://ferret.pmel.noaa.gov/socat/erddap'
     type:
     freq: 'monthly'
+    # list of datasetID to keep, 'all' mean to keep all datasetIDs
+    keep:
   jeodpp:
     url: 'https://jeodpp.jrc.ec.europa.eu/services/erddap'
     type:
     freq: 'monthly'
+    # list of datasetID to keep, 'all' mean to keep all datasetIDs
+    keep:
   emodnet:
     url: 'https://erddap.emodnet-physics.eu/erddap'
     type:
       - 'grid'
       - 'table'
     freq: 'monthly'
-
-# keep: list of datasetID to keep, whatever the remote ERDDAP server
-keep:
-  #  - datasetid1
-  #  - datasetid2
-  - ArgoFloats
-  - ArgoFloats-synthetic-BGC
-  - EP_ERD_INT_PHPH_AL_PR_NRT
-  - EP_ERD_INT_PHPH_AL_TS_NRT
-  - GLODAPv2_2016b_CMEMS
-  - SOCATv2020_tracks_gridded_yearly
+    # list of datasetID to keep, 'all' mean to keep all datasetIDs
+    keep:
+      - GLODAPv2_2016b_CMEMS
+      - SOCATv2020_tracks_gridded_yearly
+      - EP_ERD_INT_PHPH_AL_PR_NRT
+      - EP_ERD_INT_PHPH_AL_TS_NRT
