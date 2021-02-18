@@ -36,8 +36,8 @@ def _search_file(cfg_, filename_):
 
     look for file 'filename_' in:
     - local directory or given path
-    - package directory
     - user    config directory
+    - package directory
     - package config directory
 
     :param cfg_:
@@ -50,6 +50,10 @@ def _search_file(cfg_, filename_):
     if Path(filename_).is_file():
         # local directory
         return Path(filename_).absolute()
+    elif Path(Path(cfg_.config_dir()) / filename_).is_file():
+        # user config directory
+        # ~/.config/<package> directory
+        return Path(Path(cfg_.config_dir()) / filename_)
     elif Path(bceddPath / filename_).is_file():
         # ~/path/to/package/ directory
         return Path(bceddPath / filename_)
@@ -57,10 +61,6 @@ def _search_file(cfg_, filename_):
         # package config directory
         # ~/path/to/package/cfg directory
         return Path(_cfg_path / filename_)
-    elif Path(Path(cfg_.config_dir()) / filename_).is_file():
-        # user config directory
-        # ~/.config/<package> directory
-        return Path(Path(cfg_.config_dir()) / filename_)
     else:
         logging.exception(f"can not find file -{filename_}-; "
                           f'Check arguments/configuration file(s)')

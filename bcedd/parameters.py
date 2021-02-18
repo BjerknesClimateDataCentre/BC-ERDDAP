@@ -66,6 +66,9 @@ def _chk_param_server(dict_):
         if ff not in setupcfg.authorised_frequency:
             raise ValueError(f"'freq' value must be choose in {setupcfg.authorised_frequency}")
 
+        # check datasetID to keep parameters
+        v['keep'] = _get_list(v['keep'])
+
         _[k] = v
 
     return _
@@ -83,14 +86,6 @@ def _check_param(dict_):
         _['server'] = _chk_param_server(dict_['server'])
     else:
         _logger.exception(f"No remote erddap server to look for."
-                          f"Check {setupcfg.extraParam}.")
-        raise
-
-    # check datasetID to keep parameters
-    if 'keep' in dict_:
-        _['keep'] = _chk_param_keep(dict_['keep'])
-    else:
-        _logger.exception(f"No datasetID to keep."
                           f"Check {setupcfg.extraParam}.")
         raise
 

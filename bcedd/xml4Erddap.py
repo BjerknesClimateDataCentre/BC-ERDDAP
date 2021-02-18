@@ -74,7 +74,8 @@ def generate(srcname_, url_, type_):
     exe = Path.joinpath(setupcfg.erddapWebInfDir, exe)
     # Check file exists
     if not exe.is_file():
-        raise FileNotFoundError(f"Can not find ERDDAP tools {exe}")
+        _logger.error(f"Can not find ERDDAP tools {exe}")
+        raise FileNotFoundError
 
     # Check for execution access
     if not os.access(exe, os.X_OK):
@@ -114,6 +115,72 @@ def generate(srcname_, url_, type_):
     process.check_returncode()
 
 
+def check_datasetid(srcname_, url_, type_):
+    """
+    :param ds: str
+       input filename
+    :param out: str
+        output filename, optional
+    """
+    # creates output sub directory
+    datasetSubDir = setupcfg.datasetXmlPath
+    try:
+        datasetSubDir.mkdir(parents=True)
+    except FileExistsError:
+        # directory already exists
+        pass
+
+    # creates empty dataset file if need be
+    _ds = f"dataset.{srcname_}.{type_}.xml"
+    ds = Path.joinpath(datasetSubDir, _ds)
+    if not isinstance(ds, Path):
+        ds = Path(ds)
+
+    if not ds.is_file():
+        _logger.error(f"File {ds} does not exist.")
+        raise FileExistsError
+
+    # keep CDATA as it is
+    parser = etree.XMLParser(strip_cdata=False, encoding='ISO-8859-1')
+
+    tree = etree.parse(str(ds), parser)
+    root = tree.getroot()
+
+    # prevent creation of self-closing tags
+    for node in root.iter():
+        if node.text is None:
+            node.text = ''
+
+    # check parameters file
+    param = parameters.main()
+    # Use a `set` to keep track of "selected".
+    keep = set(param[srcname_]['keep'])
+
+    if 'all' not in keep:
+        _logger.info(f"from {sourcename_}, keep: {pformat(keep)}")
+        # The iter method does a recursive traversal
+        for node in root.findall('dataset'):
+
+            # Since the id is what defines a duplicate for you
+            if 'datasetID' in node.attrib:
+                current = node.get('datasetID')
+                # Not in keep means it's a useless, remove it
+                if current not in keep:
+                    node.getparent().remove(node)
+    else:
+        # keep all datasetIDs from sourcename_
+        _logger.info(f"keep all datasetIDs from {sourcename_}")
+        pass
+
+    # write xml output
+    if out is not None:
+        dsout = out
+    else:
+        dsout = ds
+
+    tree.write(str(dsout), encoding='ISO-8859-1', xml_declaration=True)
+
+
 def concatenate():
     """ concatenate header.xml dataset.XXX.xml footer.xml into local datasets.xml
     """
@@ -136,7 +203,7 @@ def concatenate():
     return dsxmlout
 
 
-def check_datasetid(ds, out=None):
+def check_duplicate(ds, out=None):
     """
     :param ds: str
        input filename
@@ -147,10 +214,12 @@ def check_datasetid(ds, out=None):
         ds = Path(ds)
 
     if out is not None and not isinstance(out, str):
-        raise TypeError(f'Invalid type value, out -{out}- must be string')
+        _logger.error(f'Invalid type value, out -{out}- must be string')
+        raise TypeError
 
     if not ds.is_file():
-        raise FileExistsError(f'File {ds} does not exist.')
+        _logger.error(f"File {ds} does not exist.")
+        raise FileExistsError
     else:
         _logger.info(f'tree: {ds}')
 
@@ -164,23 +233,6 @@ def check_datasetid(ds, out=None):
     for node in root.iter():
         if node.text is None:
             node.text = ''
-
-    # check parameters file
-    param = parameters.main()
-
-    # Use a `set` to keep track of "selected" elements with good lookup time.
-    keep = set(param['keep'])
-
-    # The iter method does a recursive traversal
-    # for node in root.iter('dataset'):
-    for node in root.findall('dataset'):
-        # print(f'node: tag -{node.tag}- attribute -{node.attrib}-')
-        # Since the id is what defines a duplicate for you
-        if 'datasetID' in node.attrib:
-            current = node.get('datasetID')
-            # Not in keep means it's a useless, remove it
-            if current not in keep:
-                node.getparent().remove(node)
 
     # remove duplicate
     # Use a `set` to keep track of "visited" elements with good lookup time.
