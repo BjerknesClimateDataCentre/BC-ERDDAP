@@ -38,11 +38,13 @@ def main():
     for b in bindings:
         # run Generate
         x4edd.generate(*b)
+        # keep selected datasetID
+        x4edd.check_datasetid(*b)
 
     # aggregate
     dsxmlout = x4edd.concatenate()
-    # check datasetid (select some, and remove duplicate)
-    x4edd.check_datasetid(dsxmlout)
+    # check (and remove) duplicate datasetid
+    x4edd.check_duplicate(dsxmlout)
     # create hard link
     x4edd.replaceXmlBy(dsxmlout)
 
