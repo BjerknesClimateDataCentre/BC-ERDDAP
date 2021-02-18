@@ -4,6 +4,7 @@
 
 # ----------------------------------------------
 # import from standard lib
+import logging
 from urllib.parse import urlparse
 import yaml
 # import from other lib
@@ -11,7 +12,8 @@ import yaml
 import bcedd.setupcfg as setupcfg
 
 # --- module's variable ------------------------
-
+# load logger
+_logger = logging.getLogger(__name__)
 
 # ----------------------------------------------
 def _is_url(url_):
@@ -29,7 +31,7 @@ def _is_url(url_):
         return False
 
 
-def _get_list(list_):
+def _get_list(list_=None):
     """ get list from yaml file element
     """
     if not isinstance(list_, list):

@@ -26,7 +26,9 @@ $ git clone -b { tag name } --single-branch { repo name } .
 > --single-branch flag prevents fetching all the branches in the cloned repository
 
 ### using pip
-$ pip(3) install -e git://github.com/{ username }/{ repo name }.git@{ tag name }#egg={ desired egg name }
+$ pip(3) install -e git+https://github.com/{ username }/{ repo name }.git@{ tag name }#egg={ desired egg name }
+
+> for 'egg name', use the contents of project-name.egg-info/top_level.txt
 
 ## Version
 
