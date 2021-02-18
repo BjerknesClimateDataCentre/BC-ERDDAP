@@ -140,10 +140,20 @@ def check_datasetid(srcname_, url_, type_):
         _logger.error(f"File {ds} does not exist.")
         raise FileExistsError
 
+    # add dummy tag
+    tmp = Path('dummy.xml')
+    with tmp.open("w") as fp:
+        # add header
+        fp.write('<dummy>\n')
+        # add single dataset
+        fp.write(ds.read_text())
+        # add footer
+        fp.write('</dummy>')
+
     # keep CDATA as it is
     parser = etree.XMLParser(strip_cdata=False, encoding='ISO-8859-1')
 
-    tree = etree.parse(str(ds), parser)
+    tree = etree.parse(str(tmp), parser)
     root = tree.getroot()
 
     # prevent creation of self-closing tags
@@ -154,10 +164,10 @@ def check_datasetid(srcname_, url_, type_):
     # check parameters file
     param = parameters.main()
     # Use a `set` to keep track of "selected".
-    keep = set(param[srcname_]['keep'])
+    keep = set(param['server'][srcname_]['keep'])
 
     if 'all' not in keep:
-        _logger.info(f"from {sourcename_}, keep: {pformat(keep)}")
+        _logger.info(f"from {srcname_}, keep: {keep}")
         # The iter method does a recursive traversal
         for node in root.findall('dataset'):
 
@@ -169,17 +179,20 @@ def check_datasetid(srcname_, url_, type_):
                     node.getparent().remove(node)
     else:
         # keep all datasetIDs from sourcename_
-        _logger.info(f"keep all datasetIDs from {sourcename_}")
+        _logger.info(f"keep all datasetIDs from {srcname_}")
         pass
 
     # write xml output
-    if out is not None:
-        dsout = out
-    else:
-        dsout = ds
+    tree.write(str(tmp), encoding='ISO-8859-1', xml_declaration=False)
 
-    tree.write(str(dsout), encoding='ISO-8859-1', xml_declaration=True)
+    # remove dummy tags
+    with open(tmp, 'r') as fin:
+        lines = fin.readlines()
+    with open(str(ds), 'w') as fout:
+        fout.writelines(lines[1:-1])
 
+    # clean temporary file
+    tmp.unlink()
 
 def concatenate():
     """ concatenate header.xml dataset.XXX.xml footer.xml into local datasets.xml
