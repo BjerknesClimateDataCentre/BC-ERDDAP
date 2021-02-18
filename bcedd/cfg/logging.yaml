@@ -36,12 +36,12 @@ handlers:
         level: ERROR
         formatter: error
         # mailhost: 'smtp.skynet.com'
-        mailhost: 'smtp.mail.com'
+        mailhost: '10.189.225.1'
         # fromaddr: logging@skynet.com
         fromaddr: julien.paul@uib.no
         # toaddrs: [ admin1@skynet.com, admin2@skynet.com ]
         toaddrs: [julien.paul@uib.no]
-        credentials: (jpa029@uib.no, password)
+        # credentials: (jpa029@uib.no, password)
         subject: Python Package System Alert
 
 # loggers:
