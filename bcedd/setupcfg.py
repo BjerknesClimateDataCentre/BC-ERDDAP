@@ -7,6 +7,7 @@
 from pathlib import Path
 import logging
 import logging.config
+import atexit
 import yaml
 import pkgutil
 import sys
@@ -16,6 +17,7 @@ import argparse
 from time import strftime, localtime
 # import from other lib
 import confuse  # Initialize config with your app
+import errorhandler
 # import from my project
 import bcedd
 
@@ -28,7 +30,7 @@ global erddapPath, erddapWebInfDir, erddapContentDir, \
        extraParam
 
 # private
-global _cfg_path #_update_log
+global _cfg_path, _logcfg, _warning_handler, _error_handler, _fatal_handler
 
 
 def _search_file(cfg_, filename_):
@@ -233,6 +235,27 @@ def _find_package_path(name):
     return os.path.dirname(os.path.abspath(filepath))
 
 
+def _logger_header():
+    """ """
+    # add header to log file
+    logging.info(f'-------------------')
+    logging.info(f'package                  : {bcedd.__name__}')
+    logging.info(f'version                  : {bcedd.__version__}')
+    logging.info(f'start time               : {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
+    logging.info(f'-------------------')
+
+def _logger_footer():
+    """ """
+    # add footer to log file
+    logging.info(f'-------------------')
+    logging.info(f"Warning     have occurred: {_warning_handler.fired}")
+    logging.info(f"Error       have occurred: {_error_handler.fired}")
+    logging.info(f"Fatal error have occurred: {_fatal_handler.fired}")
+    logging.info(f'end time                 : {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
+    logging.info(f'-------------------')
+    print(f"See output log for more details: {log_filename} ")
+
+
 def _setup_logger(config_):
     """set up logger
 
@@ -258,14 +281,14 @@ def _setup_logger(config_):
     > CRITICAL:
     > A serious error, indicating that the program itself may be unable to continue running.
     """
-    global log_filename, _cfg_path
+    global log_filename, _cfg_path, _logcfg, _warning_handler, _error_handler, _fatal_handler
 
     _cfg_path = Path(_find_package_path(bcedd.__pkg_cfg__))
     if not _cfg_path.is_dir():
         logging.exception('Can not find configuration path')
         raise FileNotFoundError
 
-    _logcfg = _cfg_path / 'logging.yaml'
+    _logcfg = _search_file(config_, 'logging.yaml')
     try:
         with open(_logcfg, 'rt') as file:
             cfg_log = yaml.safe_load(file.read())
@@ -327,6 +350,10 @@ def _setup_logger(config_):
             logging.config.dictConfig(cfg_log)
             # redirect warnings issued by the warnings module to the logging system.
             logging.captureWarnings(True)
+            # Track if message gets logged with severity of error or greater
+            _warning_handler = errorhandler.ErrorHandler(logging.WARNING)
+            _error_handler = errorhandler.ErrorHandler(logging.ERROR)
+            _fatal_handler = errorhandler.ErrorHandler(logging.CRITICAL)
 
             # keep log filename and path name
             log_filename = Path(cfg_log['handlers']['file']['filename']).resolve()
@@ -335,12 +362,8 @@ def _setup_logger(config_):
         logging.exception('Error loading configuration file. Using default configs')
         raise  # Throw exception again so calling code knows it happened
 
-    # add header to log file
-    logging.info(f'-------------------')
-    logging.info(f'package: {bcedd.__name__}')
-    logging.info(f'version: {bcedd.__version__}')
-    logging.info(f'start time: {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
-    logging.info(f'-------------------')
+    _logger_header()
+    atexit.register(_logger_footer)
 
 
 def _parse():
@@ -466,24 +489,52 @@ def _default_logger():
     # redirect warnings issued by the warnings module to the logging system.
     logging.captureWarnings(True)
 
-def _show_arguments(cfg_):
+
+def _show_arguments(cfg_, print_=False):
     """ """
-    print(f"paths.erddap        : {erddapPath}")
-    print(f"paths.webinf        : {erddapWebInfDir}")
-    print(f"paths.dataset.xml   : {datasetXmlPath}")
-    print(f"paths.log           : {logPath}\n")
+    logging.debug(f"config files:")
+    logging.debug(f"   pkg              : {cfg_.default_config_path}")
+    logging.debug(f"   user             : {cfg_.user_config_path()}")
+    logging.debug(f"   logging          : {_logcfg}")
 
-    print(f"log.filename        : {log_filename} ")
-    print(f"log.verbose         : {cfg_['log']['verbose']}  ")
-    print(f"log.level           : {cfg_['log']['level']}\n")
+    logging.debug(f"paths.erddap        : {erddapPath}")
+    logging.debug(f"paths.webinf        : {erddapWebInfDir}")
+    logging.debug(f"paths.dataset.xml   : {datasetXmlPath}")
+    logging.debug(f"paths.log           : {logPath}\n")
 
-    print(f"authorised.eddtype  : {authorised_eddtype}")
-    print(f"authorised.frequency: {authorised_frequency}\n")
+    logging.debug(f"log.filename        : {log_filename} ")
+    logging.debug(f"log.verbose         : {cfg_['log']['verbose']}  ")
+    logging.debug(f"log.level           : {cfg_['log']['level']}\n")
 
-    print(f"update.freq         : {cfg_['update']['freq']}\n")
+    logging.debug(f"authorised.eddtype  : {authorised_eddtype}")
+    logging.debug(f"authorised.frequency: {authorised_frequency}\n")
 
-    print(f"extra.parameters    : {extraParam}\n")
-    exit(0)
+    logging.debug(f"update.freq         : {cfg_['update']['freq']}\n")
+
+    logging.debug(f"extra.parameters    : {extraParam}\n")
+
+    if print_:
+        print(f"config files:")
+        print(f"   pkg              : {cfg_.default_config_path}")
+        print(f"   user             : {cfg_.user_config_path()}")
+        print(f"   logging          : {_logcfg}")
+
+        print(f"paths.erddap        : {erddapPath}")
+        print(f"paths.webinf        : {erddapWebInfDir}")
+        print(f"paths.dataset.xml   : {datasetXmlPath}")
+        print(f"paths.log           : {logPath}\n")
+
+        print(f"log.filename        : {log_filename} ")
+        print(f"log.verbose         : {cfg_['log']['verbose']}  ")
+        print(f"log.level           : {cfg_['log']['level']}\n")
+
+        print(f"authorised.eddtype  : {authorised_eddtype}")
+        print(f"authorised.frequency: {authorised_frequency}\n")
+
+        print(f"update.freq         : {cfg_['update']['freq']}\n")
+
+        print(f"extra.parameters    : {extraParam}\n")
+        exit(0)
 
 
 def _show_version():
@@ -525,8 +576,9 @@ def main():
     # check configuration file
     _chk_config(config)
 
-    if args.arguments:
-        _show_arguments(config)
+    # print parameters use from config file and/or inline command
+    _show_arguments(config, args.arguments)
+
 
 if __name__ == '__main__':
     main()
