@@ -48,11 +48,6 @@ def main():
     # create hard link
     x4edd.replaceXmlBy(dsxmlout)
 
-    # add footer to log file
-    _logger.info(f'-------------------')
-    _logger.info(f'end time: {strftime("%Y-%m-%d %H:%M:%S", localtime())}')
-    _logger.info(f'-------------------')
-
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
