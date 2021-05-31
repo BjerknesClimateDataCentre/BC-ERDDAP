@@ -42,7 +42,7 @@ handlers:
         # toaddrs: [ admin1@skynet.com, admin2@skynet.com ]
         toaddrs: [julien.paul@uib.no]
         # credentials: (jpa029@uib.no, password)
-        subject: Python Package System Alert
+        subject: BC-ERDDAP System Alert
 
 # loggers:
 #     icp2edd:
